@@ -5,9 +5,6 @@
 #include <vector>
 namespace crayon {
 
-#define ESCAPE "\u001b["
-#define MODIFIER "m"
-
 enum Style {
   Reset = 0,
   Bold,
@@ -40,82 +37,51 @@ enum Style {
 
 struct Text {
 
-  Text(Style style, const std::string &text) : m_text(text) {
-    m_styles.push_back(style);
-  }
+  Text(Style style, const std::string &text);
 
-  Text(Text &&other)
-      : m_styles(other.m_styles), m_text(std::move(other.m_text)) {}
+  Text(Text &&other);
 
-  Text &operator=(Text &&other) {
-    if (&other != this) {
-      m_text.swap(other.m_text);
-      m_styles.swap(other.m_styles);
-    }
-    return *this;
-  }
+  Text &operator=(Text &&other);
 
-  operator std::string() const { return str(); }
+  operator std::string() const;
 
-  std::string str() const {
-    std::stringstream stream;
-    int i = 0;
-    int l = m_styles.size();
+  std::string str() const;
 
-    for (; i < l; i++) {
-      stream << ESCAPE << m_styles[i] << MODIFIER;
-    }
-    stream << m_text;
-    while (i >= 0) {
-      stream << ESCAPE << m_styles[i--] << MODIFIER;
-    }
-    return stream.str();
-  }
+  Text &style(Style style);
 
-  Text &style(Style style) {
-    m_styles.push_back(style);
-    return *this;
-  }
+  void append(const std::string &str);
 
-  friend std::ostream &operator<<(std::ostream &stream, const Text &text) {
-    stream << text.str();
-    return stream;
-  }
+  friend std::ostream &operator<<(std::ostream &stream, const Text &text);
+
+  friend Text &operator<<(Text &text, const std::string &str);
 
 private:
-  int get_closer(Style style) const {
-    if (style > 0 && style <= 9)
-      return style + 20;
-    if ((style >= 30 && style <= 37) || style == 90)
-      return 39;
-    if (style >= 40 && style <= 47)
-      return 49;
-    return 0;
-  }
+  int get_closer(Style style) const;
   std::vector<Style> m_styles;
   std::string m_text;
 };
 
-Text style(Style style, const std::string &txt) { return Text(style, txt); }
+Text style(Style style, const std::string &txt);
 
 namespace fg {
-Text red(const std::string &txt) { return std::move(Text(Red, txt)); }
-Text green(const std::string &txt) { return std::move(Text(Green, txt)); }
-Text yellow(const std::string &txt) { return std::move(Text(Yellow, txt)); }
-Text blue(const std::string &txt) { return std::move(Text(Blue, txt)); }
-Text megenta(const std::string &txt) { return std::move(Text(Megenta, txt)); }
-Text cyan(const std::string &txt) { return std::move(Text(Cyan, txt)); }
-Text white(const std::string &txt) { return std::move(Text(White, txt)); }
-Text gray(const std::string &txt) { return std::move(Text(Gray, txt)); }
+Text red(const std::string &txt = "");
+Text green(const std::string &txt = "");
+Text yellow(const std::string &txt = "");
+Text blue(const std::string &txt = "");
+Text megenta(const std::string &txt = "");
+Text cyan(const std::string &txt = "");
+Text white(const std::string &txt = "");
+Text gray(const std::string &txt = "");
+Text reset();
 }
 
 namespace bg {
-Text red(const std::string &txt) { return Text(BgRed, txt); }
-Text green(const std::string &txt) { return Text(BgGreen, txt); }
-Text yellow(const std::string &txt) { return Text(BgYellow, txt); }
-Text blue(const std::string &txt) { return Text(BgBlue, txt); }
-Text megenta(const std::string &txt) { return Text(BgMegenta, txt); }
-Text cyan(const std::string &txt) { return Text(BgCyan, txt); }
-Text white(const std::string &txt) { return Text(BgWhite, txt); }
+Text red(const std::string &txt);
+Text green(const std::string &txt);
+Text yellow(const std::string &txt);
+Text blue(const std::string &txt);
+Text megenta(const std::string &txt);
+Text cyan(const std::string &txt);
+Text white(const std::string &txt);
 }
 }
