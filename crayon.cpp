@@ -23,7 +23,7 @@ Text white(const std::string &txt) { return std::move(Text(White, txt)); }
 
 Text gray(const std::string &txt) { return std::move(Text(Gray, txt)); }
 
-Text reset() { return std::move(Text(Reset, ""));}
+Text reset() { return std::move(Text(Reset, "")); }
 
 } // namespace fg
 
@@ -72,7 +72,7 @@ std::string Text::str() const {
   }
   stream << m_text;
   while (i >= 0) {
-    stream << ESCAPE << m_styles[i--] << MODIFIER;
+    stream << ESCAPE << get_closer(m_styles[i--]) << MODIFIER;
   }
   return stream.str();
 }
@@ -83,8 +83,6 @@ Text &Text::style(Style style) {
 }
 
 void Text::append(const std::string &str) { m_text.append(str); }
-
-
 
 int Text::get_closer(Style style) const {
   if (style > 0 && style <= 9)
@@ -98,17 +96,14 @@ int Text::get_closer(Style style) const {
 
 Text style(Style style, const std::string &txt) { return Text(style, txt); }
 
-
 std::ostream &operator<<(std::ostream &stream, const Text &text) {
-    stream << text.str();
-    return stream;
-  }
-  
-  Text &operator<<(Text &text, const std::string &str) {
-    text.append(str);
-    return text;
-  }
+  stream << text.str();
+  return stream;
+}
+
+Text &operator<<(Text &text, const std::string &str) {
+  text.append(str);
+  return text;
+}
 
 } // namespace crayon
-
-
